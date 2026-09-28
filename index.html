@@ -15,13 +15,13 @@
 .touch-stick{position:absolute;left:24px;bottom:24px;width:150px;height:150px;border:2px solid #ffffff55;border-radius:50%;background:#ffffff12;pointer-events:auto;touch-action:none}
 .touch-knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px;border-radius:50%;background:#ffffff45;border:2px solid #fff8;box-shadow:0 4px 18px #0008;transform:translate(0,0)}
 .touch-look{position:absolute;right:0;top:0;width:58%;height:100%;pointer-events:auto;touch-action:none}
-.touch-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:6px 10px;border-radius:8px;background:#0008;color:#fff9;font-size:12px;pointer-events:none}
+.touch-sprint{position:absolute;right:24px;bottom:34px;padding:14px 18px;font-size:14px;background:#151a21;color:#fff;border:1px solid #59606d;pointer-events:auto;touch-action:none}.touch-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:6px 10px;border-radius:8px;background:#0008;color:#fff9;font-size:12px;pointer-events:none}
 @media (pointer:coarse){#touch{display:none}}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas><canvas id="map"></canvas>
-<div id="touch"><div class="touch-stick" id="stick"><div class="touch-knob" id="knob"></div></div><div class="touch-look" id="look"></div><div class="touch-hint">Left: move/strafe · Right: swipe to look</div></div>
+<div id="touch"><button id="sprintBtn" class="touch-sprint" type="button">SPRINT</button><div class="touch-stick" id="stick"><div class="touch-knob" id="knob"></div></div><div class="touch-look" id="look"></div><div class="touch-hint">Left: move/strafe · Right: swipe to look</div></div>
 <div id="hud">
  <div class="bar left"><div class="badge">HP <b id="hp">100</b></div><div class="badge">ARMOR <b id="armor">25</b></div><div class="badge">TARGETS <b id="targets">12</b></div><div class="badge">TIME <b id="time">00:00.0</b></div></div>
  <div class="bar right"><div class="badge">WEAPON <b id="weapon">RIFLE</b></div><div class="badge">AMMO <b id="ammo">12/48</b></div><button id="prevWeapon" class="weaponBtn" type="button">−</button><button id="nextWeapon" class="weaponBtn" type="button">+</button></div>
@@ -41,10 +41,12 @@ const p={x:1.7,y:1.7,a:0,hp:100,armor:25,ammo:12,reserve:48,cool:0,reload:0,weap
 let foes=[],shots=[],sparks=[],pickups=[],trails=[];
 const keys=new Set();
 const touchKeys=new Set();
-const stick=document.getElementById("stick"),knob=document.getElementById("knob"),look=document.getElementById("look"),touchUI=document.getElementById("touch");
+const stick=document.getElementById("stick"),knob=document.getElementById("knob"),look=document.getElementById("look"),touchUI=document.getElementById("touch"),sprintBtn=document.getElementById("sprintBtn");
 let stickId=null,lookId=null,stickCX=0,stickCY=0,lastLookX=0;
 function setTouchKey(k,on){if(on)touchKeys.add(k);else touchKeys.delete(k)}
 function resetTouch(){touchKeys.clear();knob.style.transform="translate(0,0)"}
+function setSprint(e,on){if(e)e.preventDefault();if(!run)return;setTouchKey("shift",on)}
+sprintBtn.addEventListener("pointerdown",e=>{sprintBtn.setPointerCapture(e.pointerId);setSprint(e,true)});sprintBtn.addEventListener("pointerup",e=>setSprint(e,false));sprintBtn.addEventListener("pointercancel",e=>setSprint(e,false));
 function touchDown(){touchUI.style.display="block"}
 function touchUp(){touchUI.style.display="none";resetTouch();stickId=null;lookId=null}
 function handleStick(e){
@@ -110,7 +112,7 @@ function shoot(){
   const reach=best?bd:Math.min(12,8+Math.random()*5);
   trails.push({a:ang,d:reach,t:.16,max:.16,hit:!!best});
   if(best){
-   best.hp-=1;
+   best.hp-=p.weapon===2?.5:1;
    best.flash=.12;
    if(best.hp<=0){best.alive=false;message("TARGET DOWN");for(let i=0;i<8;i++)sparks.push({x:best.x,y:best.y,t:.5,a:Math.random()*6.28})}
   }
