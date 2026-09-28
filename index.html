@@ -27,7 +27,7 @@
  <div class="bar right"><div class="badge">WEAPON <b id="weapon">RIFLE</b></div><div class="badge">AMMO <b id="ammo">12/48</b></div><div class="badge">SCORE <b id="score">0</b></div></div>
  <div id="cross" class="cross"></div><div id="message"></div>
 </div>
-<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>1</kbd><kbd>2</kbd> switch weapon &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
+<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>1</kbd><kbd>2</kbd> switch weapon &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Auto-fire: aim the crosshair at a visible target.</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
 <script>
 "use strict";
 const c=document.getElementById("game"),x=c.getContext("2d"),mc=document.getElementById("map"),mx=mc.getContext("2d");
@@ -90,6 +90,19 @@ function shoot(){
  if(best){best.hp-=p.weapon===1?1:2;best.flash=.12;score+=25;if(best.hp<=0){best.alive=false;score+=75;message("TARGET DOWN");for(let i=0;i<8;i++)sparks.push({x:best.x,y:best.y,t:.5,a:Math.random()*6.28})}}
  for(let i=0;i<(p.weapon===1?2:5);i++)sparks.push({x:p.x+Math.cos(p.a)*.4,y:p.y+Math.sin(p.a)*.4,t:.12,a:p.a+(Math.random()-.5)*.5});
 }
+function aimedTarget(){
+ let best=null,bd=999,spread=p.weapon===1?.055:.12;
+ for(let e of foes)if(e.alive){
+  let dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy),a=Math.abs(norm(Math.atan2(dy,dx)-p.a));
+  if(a<spread&&d<bd&&line(p.x,p.y,e.x,e.y)){best=e;bd=d}
+ }
+ return best;
+}
+function autoShoot(){
+ if(!run||p.reload||p.cool>0)return;
+ if(aimedTarget())shoot();
+ else if(p.ammo<=0&&p.reserve>0)reload();
+}
 function damage(n){let blocked=Math.min(p.armor,Math.ceil(n*.6));p.armor-=blocked;p.hp=Math.max(0,p.hp-(n-blocked));shake=6;message("UNDER ATTACK")}
 function enemyAI(dt){
  for(let e of foes)if(e.alive){e.flash=Math.max(0,e.flash-dt);e.hit-=dt;e.fire-=dt;let dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy);
@@ -103,7 +116,7 @@ function enemyAI(dt){
 function update(dt){
  let turn=2.15*dt,spd=2.6*dt;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;if(keys.has("a"))p.a-=turn;if(keys.has("d"))p.a+=turn;
  let dx=0,dy=0;if(keys.has("w")||keys.has("arrowup")||touchKeys.has("w")){dx+=Math.cos(p.a)*spd;dy+=Math.sin(p.a)*spd}if(keys.has("s")||keys.has("arrowdown")||touchKeys.has("s")){dx-=Math.cos(p.a)*spd;dy-=Math.sin(p.a)*spd}if(keys.has("q")||touchKeys.has("q")){dx+=Math.cos(p.a-Math.PI/2)*spd;dy+=Math.sin(p.a-Math.PI/2)*spd}if(keys.has("e")||touchKeys.has("e")){dx+=Math.cos(p.a+Math.PI/2)*spd;dy+=Math.sin(p.a+Math.PI/2)*spd}if(!block(p.x+dx,p.y))p.x+=dx;if(!block(p.x,p.y+dy))p.y+=dy;
- if(keys.has(" "))shoot();p.cool=Math.max(0,p.cool-dt);
+ if(keys.has(" "))shoot();autoShoot();p.cool=Math.max(0,p.cool-dt);
  if(p.reload){p.reload-=dt;if(p.reload<=0){let cap=p.weapon===1?12:4,n=Math.min(cap-p.ammo,p.reserve);p.ammo+=n;p.reserve-=n;p.reload=0}}
  enemyAI(dt);
  for(let q of pickups)if(!q.taken&&Math.hypot(q.x-p.x,q.y-p.y)<.55){q.taken=true;if(q.type==="armor")p.armor=Math.min(100,p.armor+30);else p.reserve=Math.min(99,p.reserve+24);message(q.type==="armor"?"ARMOR +30":"AMMO +24")}
