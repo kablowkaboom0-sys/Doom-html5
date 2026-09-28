@@ -27,7 +27,7 @@
  <div class="bar right"><div class="badge">WEAPON <b id="weapon">RIFLE</b></div><div class="badge">AMMO <b id="ammo">12/48</b></div><button id="prevWeapon" class="weaponBtn" type="button">−</button><button id="nextWeapon" class="weaponBtn" type="button">+</button></div>
  <div id="cross" class="cross"></div><div id="message"></div>
 </div>
-<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>+</kbd>/<kbd>-</kbd> scroll weapons &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Auto-fire: aim the crosshair at a visible target.</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
+<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">3D arena combat. Walk, sprint, switch weapons and clear all 12 targets.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>+</kbd>/<kbd>-</kbd> scroll weapons &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div><kbd>SPACE</kbd> shoot &nbsp; <kbd>SHIFT</kbd> sprint</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
 <script>
 "use strict";
 const c=document.getElementById("game"),x=c.getContext("2d"),mc=document.getElementById("map"),mx=mc.getContext("2d");
@@ -61,7 +61,7 @@ stick.addEventListener("pointermove",e=>{if(e.pointerId===stickId)handleStick(e)
 stick.addEventListener("pointerup",e=>{if(e.pointerId===stickId){stickId=null;resetTouch()}});
 stick.addEventListener("pointercancel",e=>{if(e.pointerId===stickId){stickId=null;resetTouch()}});
 look.addEventListener("pointerdown",e=>{if(!run)return;lookId=e.pointerId;lastLookX=e.clientX;look.setPointerCapture(e.pointerId);e.preventDefault()});
-look.addEventListener("pointermove",e=>{if(e.pointerId!==lookId||!run)return;const dx=e.clientX-lastLookX;lastLookX=e.clientX;p.a+=dx*0.008;e.preventDefault()});
+look.addEventListener("pointermove",e=>{if(e.pointerId!==lookId||!run)return;const dx=e.clientX-lastLookX;lastLookX=e.clientX;p.a+=dx*0.0065;e.preventDefault()});
 look.addEventListener("pointerup",e=>{if(e.pointerId===lookId)lookId=null});
 look.addEventListener("pointercancel",e=>{if(e.pointerId===lookId)lookId=null});
 
@@ -99,13 +99,13 @@ function shoot(){
  if(p.ammo<=0){reload();return}
  p.ammo--;p.cool=p.weapon===1?.22:p.weapon===2?.55:.85;flash=.09;shake=p.weapon===3?6:4;
  const pellets=p.weapon===3?6:1;
- const baseSpread=p.weapon===1?.035:p.weapon===2?.09:.20;
+ const baseSpread=p.weapon===1?.035:p.weapon===2?.09:.32;
  for(let k=0;k<pellets;k++){
   const ang=p.a+(Math.random()-.5)*baseSpread;
   let best=null,bd=999;
   for(let e of foes)if(e.alive){
    let dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy),a=Math.abs(norm(Math.atan2(dy,dx)-ang));
-   if(a<.045+(p.weapon===3?.035:0)&&d<bd&&line(p.x,p.y,e.x,e.y)){best=e;bd=d}
+   if(a<.045+(p.weapon===3?.075:0)&&d<bd&&line(p.x,p.y,e.x,e.y)){best=e;bd=d}
   }
   const reach=best?bd:Math.min(12,8+Math.random()*5);
   trails.push({a:ang,d:reach,t:.16,max:.16,hit:!!best});
@@ -116,19 +116,6 @@ function shoot(){
   }
  }
  for(let i=0;i<(p.weapon===3?10:p.weapon===1?2:5);i++)sparks.push({x:p.x+Math.cos(p.a)*.4,y:p.y+Math.sin(p.a)*.4,t:.12,a:p.a+(Math.random()-.5)*.5});
-}
-function aimedTarget(){
- let best=null,bd=999,spread=p.weapon===1?.055:p.weapon===2?.12:.22;
- for(let e of foes)if(e.alive){
-  let dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy),a=Math.abs(norm(Math.atan2(dy,dx)-p.a));
-  if(a<spread&&d<bd&&line(p.x,p.y,e.x,e.y)){best=e;bd=d}
- }
- return best;
-}
-function autoShoot(){
- if(!run||p.reload||p.cool>0)return;
- if(aimedTarget())shoot();
- else if(p.ammo<=0&&p.reserve>0)reload();
 }
 function damage(n){let blocked=Math.min(p.armor,Math.ceil(n*.6));p.armor-=blocked;p.hp=Math.max(0,p.hp-(n-blocked));shake=6;message("UNDER ATTACK")}
 function enemyAI(dt){
@@ -148,12 +135,12 @@ function enemyAI(dt){
  shots=shots.filter(s=>s.d<2.5);
 }
 function update(dt){
- timer+=dt;let turn=2.15*dt,spd=2.6*dt;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;if(keys.has("a"))p.a-=turn;if(keys.has("d"))p.a+=turn;
- let dx=0,dy=0;if(keys.has("w")||keys.has("arrowup")||touchKeys.has("w")){dx+=Math.cos(p.a)*spd;dy+=Math.sin(p.a)*spd}if(keys.has("s")||keys.has("arrowdown")||touchKeys.has("s")){dx-=Math.cos(p.a)*spd;dy-=Math.sin(p.a)*spd}if(keys.has("q")||touchKeys.has("q")){dx+=Math.cos(p.a-Math.PI/2)*spd;dy+=Math.sin(p.a-Math.PI/2)*spd}if(keys.has("e")||touchKeys.has("e")){dx+=Math.cos(p.a+Math.PI/2)*spd;dy+=Math.sin(p.a+Math.PI/2)*spd}if(!block(p.x+dx,p.y))p.x+=dx;if(!block(p.x,p.y+dy))p.y+=dy;
- if(keys.has(" "))shoot();autoShoot();p.cool=Math.max(0,p.cool-dt);
+ timer+=dt;let turn=1.8*dt,walk=2.15*dt,sprint=2.6*dt,spd=keys.has("shift")?sprint:walk;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;if(keys.has("a"))p.a-=turn;if(keys.has("d"))p.a+=turn;
+ let dx=0,dy=0;if(keys.has("w")||keys.has("arrowup")||touchKeys.has("w")){dx+=Math.cos(p.a)*spd;dy+=Math.sin(p.a)*spd}if(keys.has("s")||keys.has("arrowdown")||touchKeys.has("s")){dx-=Math.cos(p.a)*spd;dy-=Math.sin(p.a)*spd}if(keys.has("q")||touchKeys.has("q")){dx+=Math.cos(p.a-Math.PI/2)*spd;dy+=Math.sin(p.a-Math.PI/2)*spd}if(keys.has("e")||touchKeys.has("e")){dx+=Math.cos(p.a+Math.PI/2)*spd;dy+=Math.sin(p.a+Math.PI/2)*spd}if(!block(p.x+dx,p.y)) p.x+=dx;if(!block(p.x,p.y+dy))p.y+=dy;
+ if(keys.has(" "))shoot();p.cool=Math.max(0,p.cool-dt);
  if(p.reload){p.reload-=dt;if(p.reload<=0){let cap=p.weapon===1?12:p.weapon===2?4:2,n=Math.min(cap-p.ammo,p.reserve);p.ammo+=n;p.reserve-=n;p.reload=0}}
  enemyAI(dt);
- for(let q of pickups)if(!q.taken&&Math.hypot(q.x-p.x,q.y-p.y)<.55){q.taken=true;if(q.type==="armor")p.armor=Math.min(100,p.armor+30);else if(q.type==="health")p.hp=Math.min(100,p.hp+35);else if(q.type==="shotgun"){p.weapon=3;p.ammo=Math.min(2,p.ammo+2);p.reserve=Math.min(24,p.reserve+8);wepE.textContent="SHOTGUN"}else p.reserve=Math.min(99,p.reserve+24);message(q.type==="armor"?"ARMOR +30":q.type==="health"?"HEALTH +35":q.type==="shotgun"?"SHOTGUN +2":"AMMO +24")}
+ for(let q of pickups)if(!q.taken&&Math.hypot(q.x-p.x,q.y-p.y)<.55){q.taken=true;if(q.type==="armor")p.armor=Math.min(100,p.armor+30);else if(q.type==="health")p.hp=Math.min(100,p.hp+60);else if(q.type==="shotgun"){p.weapon=3;p.ammo=Math.min(2,p.ammo+2);p.reserve=Math.min(24,p.reserve+8);wepE.textContent="SHOTGUN"}else p.reserve=Math.min(99,p.reserve+24);message(q.type==="armor"?"ARMOR +30":q.type==="health"?"HEALTH +60":q.type==="shotgun"?"SHOTGUN +2":"AMMO +24")}
  for(let s of sparks){s.t-=dt;s.x+=Math.cos(s.a)*dt*.7;s.y+=Math.sin(s.a)*dt*.7}
  sparks=sparks.filter(s=>s.t>0);trails.forEach(t=>t.t-=dt);trails=trails.filter(t=>t.t>0);
  if(p.hp<=0)return end(false);if(foes.every(e=>!e.alive))return end(true);
