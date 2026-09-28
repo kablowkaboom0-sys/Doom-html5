@@ -144,17 +144,17 @@ function enemyAI(dt){
  shots=shots.filter(s=>s.d<2.5);
 }
 function update(dt){
- let turn=2.15*dt,spd=2.6*dt;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;if(keys.has("a"))p.a-=turn;if(keys.has("d"))p.a+=turn;
+ timer+=dt;let turn=2.15*dt,spd=2.6*dt;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;if(keys.has("a"))p.a-=turn;if(keys.has("d"))p.a+=turn;
  let dx=0,dy=0;if(keys.has("w")||keys.has("arrowup")||touchKeys.has("w")){dx+=Math.cos(p.a)*spd;dy+=Math.sin(p.a)*spd}if(keys.has("s")||keys.has("arrowdown")||touchKeys.has("s")){dx-=Math.cos(p.a)*spd;dy-=Math.sin(p.a)*spd}if(keys.has("q")||touchKeys.has("q")){dx+=Math.cos(p.a-Math.PI/2)*spd;dy+=Math.sin(p.a-Math.PI/2)*spd}if(keys.has("e")||touchKeys.has("e")){dx+=Math.cos(p.a+Math.PI/2)*spd;dy+=Math.sin(p.a+Math.PI/2)*spd}if(!block(p.x+dx,p.y))p.x+=dx;if(!block(p.x,p.y+dy))p.y+=dy;
  if(keys.has(" "))shoot();autoShoot();p.cool=Math.max(0,p.cool-dt);
- if(p.reload){p.reload-=dt;if(p.reload<=0){let cap=p.weapon===1?12:4,n=Math.min(cap-p.ammo,p.reserve);p.ammo+=n;p.reserve-=n;p.reload=0}}
+ if(p.reload){p.reload-=dt;if(p.reload<=0){let cap=p.weapon===1?12:p.weapon===2?4:2,n=Math.min(cap-p.ammo,p.reserve);p.ammo+=n;p.reserve-=n;p.reload=0}}
  enemyAI(dt);
  for(let q of pickups)if(!q.taken&&Math.hypot(q.x-p.x,q.y-p.y)<.55){q.taken=true;if(q.type==="armor")p.armor=Math.min(100,p.armor+30);else if(q.type==="health")p.hp=Math.min(100,p.hp+35);else if(q.type==="shotgun"){p.weapon=3;p.ammo=Math.min(2,p.ammo+2);p.reserve=Math.min(24,p.reserve+8);wepE.textContent="SHOTGUN"}else p.reserve=Math.min(99,p.reserve+24);message(q.type==="armor"?"ARMOR +30":q.type==="health"?"HEALTH +35":q.type==="shotgun"?"SHOTGUN +2":"AMMO +24")}
  for(let s of sparks){s.t-=dt;s.x+=Math.cos(s.a)*dt*.7;s.y+=Math.sin(s.a)*dt*.7}
  sparks=sparks.filter(s=>s.t>0);trails.forEach(t=>t.t-=dt);trails=trails.filter(t=>t.t>0);
  if(p.hp<=0)return end(false);if(foes.every(e=>!e.alive))return end(true);
- hpE.textContent=p.hp;armE.textContent=p.armor;tarE.textContent=foes.filter(e=>e.alive).length;ammoE.textContent=(p.reload?"...":p.ammo)+"/"+p.reserve;wepE.textContent=p.weapon===1?"RIFLE":p.weapon===2?"BLASTER":"SHOTGUN";scoreE.textContent=score;
- timeE.textContent=new Date(timer*1000).toISOString().slice(14,19)+"."+Math.floor((timer%1)*10);flash=Math.max(0,flash-dt);shake=Math.max(0,shake-dt*15);if(msgT>0){msgT-=dt;if(msgT<=0)msg.style.opacity=0}
+ hpE.textContent=p.hp;armE.textContent=p.armor;tarE.textContent=(12-foes.filter(e=>e.alive).length)+"/12";ammoE.textContent=(p.reload?"...":p.ammo)+"/"+p.reserve;wepE.textContent=p.weapon===1?"RIFLE":p.weapon===2?"BLASTER":"SHOTGUN";scoreE.textContent=score;
+ timeE.textContent=new Date(timer*1000).toISOString().slice(14,19)+"."+Math.floor((timer%1)*10);let mm=Math.floor(timer/60),ss=Math.floor(timer%60),tt=Math.floor((timer%1)*10);timeE.textContent=String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0")+"."+tt;flash=Math.max(0,flash-dt);shake=Math.max(0,shake-dt*15);if(msgT>0){msgT-=dt;if(msgT<=0)msg.style.opacity=0}
 }
 function end(win){run=false;gameOver=true;menu.style.display="grid";hud.style.display="none";touchUp();start.textContent="RETRY";sub.textContent=win?"SECTOR CLEARED — 12/12 TARGETS — TIME "+timeE.textContent+" — SCORE "+score:"SYSTEM FAILURE — TIME "+timeE.textContent+" — SCORE "+score}
 function render(){
