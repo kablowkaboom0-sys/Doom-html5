@@ -11,16 +11,23 @@
 #message{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);padding:9px 14px;background:#000b;border:1px solid #68717d;border-radius:8px;font-weight:800;opacity:0}
 #menu{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#333946d9,#030406f5);z-index:5}.panel{width:min(680px,92vw);padding:32px;border:1px solid #69727e;border-radius:18px;background:#090b0fe8;box-shadow:0 25px 100px #000;text-align:center}h1{margin:0;font-size:clamp(38px,9vw,70px);letter-spacing:5px}h1 span{font-size:.32em;letter-spacing:2px;color:#aab2bd;display:block;margin-top:-4px}.sub{color:#bbc1ca;line-height:1.5;margin:12px 0 24px}button{border:0;border-radius:10px;padding:14px 28px;font-size:18px;font-weight:900;background:#eef1f5;color:#111;cursor:pointer}.controls{margin-top:20px;color:#c5cad2;line-height:1.8;font-size:14px}kbd{background:#242932;border:1px solid #505865;border-radius:5px;padding:2px 7px;color:#fff}
 #map{position:absolute;right:14px;bottom:14px;width:150px;height:150px;border:1px solid #68717d;background:#0008;border-radius:10px;display:none}
+#touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:4;user-select:none;-webkit-user-select:none}
+.touch-stick{position:absolute;left:24px;bottom:24px;width:150px;height:150px;border:2px solid #ffffff55;border-radius:50%;background:#ffffff12;pointer-events:auto;touch-action:none}
+.touch-knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px;border-radius:50%;background:#ffffff45;border:2px solid #fff8;box-shadow:0 4px 18px #0008;transform:translate(0,0)}
+.touch-look{position:absolute;right:0;top:0;width:58%;height:100%;pointer-events:auto;touch-action:none}
+.touch-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);padding:6px 10px;border-radius:8px;background:#0008;color:#fff9;font-size:12px;pointer-events:none}
+@media (pointer:coarse){#touch{display:none}}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas><canvas id="map"></canvas>
+<div id="touch"><div class="touch-stick" id="stick"><div class="touch-knob" id="knob"></div></div><div class="touch-look" id="look"></div><div class="touch-hint">Left: move/strafe · Right: swipe to look</div></div>
 <div id="hud">
  <div class="bar left"><div class="badge">HP <b id="hp">100</b></div><div class="badge">ARMOR <b id="armor">25</b></div><div class="badge">TARGETS <b id="targets">0</b></div></div>
  <div class="bar right"><div class="badge">WEAPON <b id="weapon">RIFLE</b></div><div class="badge">AMMO <b id="ammo">12/48</b></div><div class="badge">SCORE <b id="score">0</b></div></div>
  <div id="cross" class="cross"></div><div id="message"></div>
 </div>
-<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>WASD</kbd> move &nbsp; <kbd>← →</kbd> turn &nbsp; <kbd>SPACE</kbd> fire</div><div><kbd>R</kbd> reload &nbsp; <kbd>1</kbd><kbd>2</kbd> switch weapon &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
+<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>1</kbd><kbd>2</kbd> switch weapon &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
 <script>
 "use strict";
 const c=document.getElementById("game"),x=c.getContext("2d"),mc=document.getElementById("map"),mx=mc.getContext("2d");
@@ -33,6 +40,31 @@ const MW=map[0].length,MH=map.length,FOV=Math.PI/3;
 const p={x:1.7,y:1.7,a:0,hp:100,armor:25,ammo:12,reserve:48,cool:0,reload:0,weapon:1,damage:1,shot:0};
 let foes=[],shots=[],sparks=[],pickups=[];
 const keys=new Set();
+const touchKeys=new Set();
+const stick=document.getElementById("stick"),knob=document.getElementById("knob"),look=document.getElementById("look"),touchUI=document.getElementById("touch");
+let stickId=null,lookId=null,stickCX=0,stickCY=0,lastLookX=0;
+function setTouchKey(k,on){if(on)touchKeys.add(k);else touchKeys.delete(k)}
+function resetTouch(){touchKeys.clear();knob.style.transform="translate(0,0)"}
+function touchDown(){touchUI.style.display="block"}
+function touchUp(){touchUI.style.display="none";resetTouch();stickId=null;lookId=null}
+function handleStick(e){
+  e.preventDefault();
+  const r=stick.getBoundingClientRect(),max=55;
+  let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
+  const len=Math.hypot(dx,dy),scale=len>max?max/len:1;dx*=scale;dy*=scale;
+  knob.style.transform="translate("+dx+"px,"+dy+"px)";
+  setTouchKey("w",dy<-18);setTouchKey("s",dy>18);
+  setTouchKey("q",dx< -18);setTouchKey("e",dx>18);
+}
+stick.addEventListener("pointerdown",e=>{if(!run)return;stickId=e.pointerId;stick.setPointerCapture(e.pointerId);handleStick(e)});
+stick.addEventListener("pointermove",e=>{if(e.pointerId===stickId)handleStick(e)});
+stick.addEventListener("pointerup",e=>{if(e.pointerId===stickId){stickId=null;resetTouch()}});
+stick.addEventListener("pointercancel",e=>{if(e.pointerId===stickId){stickId=null;resetTouch()}});
+look.addEventListener("pointerdown",e=>{if(!run)return;lookId=e.pointerId;lastLookX=e.clientX;look.setPointerCapture(e.pointerId);e.preventDefault()});
+look.addEventListener("pointermove",e=>{if(e.pointerId!==lookId||!run)return;const dx=e.clientX-lastLookX;lastLookX=e.clientX;p.a+=dx*0.008;e.preventDefault()});
+look.addEventListener("pointerup",e=>{if(e.pointerId===lookId)lookId=null});
+look.addEventListener("pointercancel",e=>{if(e.pointerId===lookId)lookId=null});
+
 addEventListener("keydown",e=>{let k=e.key.toLowerCase();if([" ","arrowleft","arrowright","arrowup","arrowdown"].includes(k))e.preventDefault();keys.add(k);if(k==="escape"&&run)pause();if(k==="r"&&run)reload();if(k==="m"&&run){showMap=!showMap;mc.style.display=showMap?"block":"none"}if((k==="1"||k==="2")&&run)switchWeapon(+k);if(!run&&(k==="enter"||k===" "))startGame()});
 addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));start.onclick=startGame;
 function cell(a,b){let X=Math.floor(a),Y=Math.floor(b);return Y<0||Y>=MH||X<0||X>=MW||map[Y][X]==="1"}
@@ -44,8 +76,8 @@ function reset(){
  foes=[...[[4.5,3.5],[13.5,3.5],[7.5,5.5],[14.5,7.5],[4.5,10.5],[11.5,10.5],[7.5,12.5],[14.5,14.5]]].map((q,i)=>({x:q[0],y:q[1],hp:i%3?2:3,alive:true,flash:0,hit:0,fire:1.5+i*.25}));
  pickups=[{x:5.5,y:14.5,type:"armor",taken:false},{x:12.5,y:4.5,type:"ammo",taken:false}];
 }
-function startGame(){reset();run=true;menu.style.display="none";hud.style.display="block";mc.style.display=showMap?"block":"none";start.textContent="START GAME";sub.textContent="Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.";last=performance.now();message("SECTOR 01");requestAnimationFrame(loop)}
-function pause(){run=false;menu.style.display="grid";hud.style.display="none";start.textContent="RESUME"}
+function startGame(){reset();run=true;menu.style.display="none";hud.style.display="block";touchDown();mc.style.display=showMap?"block":"none";start.textContent="START GAME";sub.textContent="Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.";last=performance.now();message("SECTOR 01");requestAnimationFrame(loop)}
+function pause(){run=false;menu.style.display="grid";hud.style.display="none";touchUp();start.textContent="RESUME"}
 function message(t){msg.textContent=t;msg.style.opacity=1;msgT=1}
 function switchWeapon(n){p.weapon=n;p.ammo=n===1?Math.min(p.ammo,12):Math.min(p.ammo,4);p.reserve=n===1?Math.max(p.reserve,0):Math.max(p.reserve,0);wepE.textContent=n===1?"RIFLE":"BLASTER";message(n===1?"RIFLE":"BLASTER")}
 function reload(){let cap=p.weapon===1?12:4;if(p.reload||p.ammo>=cap||p.reserve<=0)return;p.reload=p.weapon===1?.8:1.05;message("RELOADING")}
@@ -69,8 +101,8 @@ function enemyAI(dt){
  shots=shots.filter(s=>s.d<2.5);
 }
 function update(dt){
- let turn=2.15*dt,spd=2.6*dt;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;
- let dx=0,dy=0;if(keys.has("w")||keys.has("arrowup")){dx+=Math.cos(p.a)*spd;dy+=Math.sin(p.a)*spd}if(keys.has("s")||keys.has("arrowdown")){dx-=Math.cos(p.a)*spd;dy-=Math.sin(p.a)*spd}if(keys.has("a")){dx+=Math.cos(p.a-Math.PI/2)*spd;dy+=Math.sin(p.a-Math.PI/2)*spd}if(keys.has("d")){dx+=Math.cos(p.a+Math.PI/2)*spd;dy+=Math.sin(p.a+Math.PI/2)*spd}if(!block(p.x+dx,p.y))p.x+=dx;if(!block(p.x,p.y+dy))p.y+=dy;
+ let turn=2.15*dt,spd=2.6*dt;if(keys.has("arrowleft"))p.a-=turn;if(keys.has("arrowright"))p.a+=turn;if(keys.has("a"))p.a-=turn;if(keys.has("d"))p.a+=turn;
+ let dx=0,dy=0;if(keys.has("w")||keys.has("arrowup")||touchKeys.has("w")){dx+=Math.cos(p.a)*spd;dy+=Math.sin(p.a)*spd}if(keys.has("s")||keys.has("arrowdown")||touchKeys.has("s")){dx-=Math.cos(p.a)*spd;dy-=Math.sin(p.a)*spd}if(keys.has("q")||touchKeys.has("q")){dx+=Math.cos(p.a-Math.PI/2)*spd;dy+=Math.sin(p.a-Math.PI/2)*spd}if(keys.has("e")||touchKeys.has("e")){dx+=Math.cos(p.a+Math.PI/2)*spd;dy+=Math.sin(p.a+Math.PI/2)*spd}if(!block(p.x+dx,p.y))p.x+=dx;if(!block(p.x,p.y+dy))p.y+=dy;
  if(keys.has(" "))shoot();p.cool=Math.max(0,p.cool-dt);
  if(p.reload){p.reload-=dt;if(p.reload<=0){let cap=p.weapon===1?12:4,n=Math.min(cap-p.ammo,p.reserve);p.ammo+=n;p.reserve-=n;p.reload=0}}
  enemyAI(dt);
@@ -81,7 +113,7 @@ function update(dt){
  hpE.textContent=p.hp;armE.textContent=p.armor;tarE.textContent=foes.filter(e=>e.alive).length;ammoE.textContent=(p.reload?"...":p.ammo)+"/"+p.reserve;wepE.textContent=p.weapon===1?"RIFLE":"BLASTER";scoreE.textContent=score;
  flash=Math.max(0,flash-dt);shake=Math.max(0,shake-dt*15);if(msgT>0){msgT-=dt;if(msgT<=0)msg.style.opacity=0}
 }
-function end(win){run=false;menu.style.display="grid";hud.style.display="none";start.textContent="PLAY AGAIN";sub.textContent=win?"SECTOR CLEARED — SCORE "+score:"SYSTEM FAILURE — SCORE "+score}
+function end(win){run=false;menu.style.display="grid";hud.style.display="none";touchUp();start.textContent="PLAY AGAIN";sub.textContent=win?"SECTOR CLEARED — SCORE "+score:"SYSTEM FAILURE — SCORE "+score}
 function render(){
  let ox=shake?(Math.random()-.5)*shake:0,oy=shake?(Math.random()-.5)*shake:0;x.save();x.translate(ox,oy);
  let h=H*.48;x.fillStyle="#10131a";x.fillRect(-10,-10,W+20,h+10);let g=x.createLinearGradient(0,h,0,H);g.addColorStop(0,"#303744");g.addColorStop(1,"#090b10");x.fillStyle=g;x.fillRect(-10,h,W+20,H-h+10);
