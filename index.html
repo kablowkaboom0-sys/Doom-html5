@@ -9,7 +9,7 @@
 #hud{position:fixed;inset:0;pointer-events:none;display:none;text-shadow:0 2px 4px #000}.bar{position:absolute;display:flex;gap:8px;flex-wrap:wrap}.badge{background:rgba(5,7,10,.7);border:1px solid #59606d;padding:7px 10px;border-radius:8px;font-weight:800}.left{left:14px;top:14px}.right{right:14px;top:14px}
 #cross{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%)}#cross:before,#cross:after{content:"";position:absolute;background:#fff;box-shadow:0 0 4px #000}.cross:before{width:20px;height:2px;top:9px}.cross:after{height:20px;width:2px;left:9px}
 #message{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);padding:9px 14px;background:#000b;border:1px solid #68717d;border-radius:8px;font-weight:800;opacity:0}
-#menu{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#333946d9,#030406f5);z-index:5}.panel{width:min(680px,92vw);padding:32px;border:1px solid #69727e;border-radius:18px;background:#090b0fe8;box-shadow:0 25px 100px #000;text-align:center}h1{margin:0;font-size:clamp(38px,9vw,70px);letter-spacing:5px}h1 span{font-size:.32em;letter-spacing:2px;color:#aab2bd;display:block;margin-top:-4px}.sub{color:#bbc1ca;line-height:1.5;margin:12px 0 24px}button{border:0;border-radius:10px;padding:14px 28px;font-size:18px;font-weight:900;background:#eef1f5;color:#111;cursor:pointer}.controls{margin-top:20px;color:#c5cad2;line-height:1.8;font-size:14px}kbd{background:#242932;border:1px solid #505865;border-radius:5px;padding:2px 7px;color:#fff}
+#menu{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#333946d9,#030406f5);z-index:5}.panel{width:min(680px,92vw);padding:32px;border:1px solid #69727e;border-radius:18px;background:#090b0fe8;box-shadow:0 25px 100px #000;text-align:center}h1{margin:0;font-size:clamp(38px,9vw,70px);letter-spacing:5px}h1 span{font-size:.32em;letter-spacing:2px;color:#aab2bd;display:block;margin-top:-4px}.sub{color:#bbc1ca;line-height:1.5;margin:12px 0 24px}button{border:0;border-radius:10px;padding:14px 28px;font-size:18px;font-weight:900;background:#eef1f5;color:#111;cursor:pointer}.weaponBtn{pointer-events:auto;width:42px;height:42px;padding:0;border-radius:9px;font-size:28px;line-height:42px;background:#151a21;color:#fff;border:1px solid #59606d}.controls{margin-top:20px;color:#c5cad2;line-height:1.8;font-size:14px}kbd{background:#242932;border:1px solid #505865;border-radius:5px;padding:2px 7px;color:#fff}
 #map{position:absolute;right:14px;bottom:14px;width:150px;height:150px;border:1px solid #68717d;background:#0008;border-radius:10px;display:none}
 #touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:4;user-select:none;-webkit-user-select:none}
 .touch-stick{position:absolute;left:24px;bottom:24px;width:150px;height:150px;border:2px solid #ffffff55;border-radius:50%;background:#ffffff12;pointer-events:auto;touch-action:none}
@@ -24,16 +24,16 @@
 <div id="touch"><div class="touch-stick" id="stick"><div class="touch-knob" id="knob"></div></div><div class="touch-look" id="look"></div><div class="touch-hint">Left: move/strafe · Right: swipe to look</div></div>
 <div id="hud">
  <div class="bar left"><div class="badge">HP <b id="hp">100</b></div><div class="badge">ARMOR <b id="armor">25</b></div><div class="badge">TARGETS <b id="targets">12</b></div><div class="badge">TIME <b id="time">00:00.0</b></div></div>
- <div class="bar right"><div class="badge">WEAPON <b id="weapon">RIFLE</b></div><div class="badge">AMMO <b id="ammo">12/48</b></div><div class="badge">SCORE <b id="score">0</b></div></div>
+ <div class="bar right"><div class="badge">WEAPON <b id="weapon">RIFLE</b></div><div class="badge">AMMO <b id="ammo">12/48</b></div><button id="prevWeapon" class="weaponBtn" type="button">−</button><button id="nextWeapon" class="weaponBtn" type="button">+</button></div>
  <div id="cross" class="cross"></div><div id="message"></div>
 </div>
-<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> switch weapon &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Auto-fire: aim the crosshair at a visible target.</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
+<div id="menu"><div class="panel"><h1>ARENA<span>ORIGINAL HTML5 RETRO FPS</span></h1><p class="sub" id="subtitle">Fast keyboard-only 3D arena combat. Clear the sector and reach the exit.</p><button id="start">START GAME</button><div class="controls"><div><kbd>W</kbd><kbd>S</kbd> forward/back &nbsp; <kbd>Q</kbd><kbd>E</kbd> strafe &nbsp; <kbd>A</kbd><kbd>D</kbd> look</div><div><kbd>R</kbd> reload &nbsp; <kbd>+</kbd>/<kbd>-</kbd> scroll weapons &nbsp; <kbd>M</kbd> minimap &nbsp; <kbd>ESC</kbd> pause</div><div>Auto-fire: aim the crosshair at a visible target.</div><div>Touch: left joystick moves/strafe · swipe the right side to look around.</div><div>Original code and visuals — no Doom assets are used.</div></div></div></div>
 <script>
 "use strict";
 const c=document.getElementById("game"),x=c.getContext("2d"),mc=document.getElementById("map"),mx=mc.getContext("2d");
 const menu=document.getElementById("menu"),start=document.getElementById("start"),hud=document.getElementById("hud"),sub=document.getElementById("subtitle");
-const hpE=document.getElementById("hp"),armE=document.getElementById("armor"),tarE=document.getElementById("targets"),ammoE=document.getElementById("ammo"),wepE=document.getElementById("weapon"),scoreE=document.getElementById("score"),timeE=document.getElementById("time"),msg=document.getElementById("message");
-let W=0,H=0,dpr=1,run=false,last=0,timer=0,flash=0,shake=0,msgT=0,showMap=true,score=0,level=1,gameOver=false;
+const hpE=document.getElementById("hp"),armE=document.getElementById("armor"),tarE=document.getElementById("targets"),ammoE=document.getElementById("ammo"),wepE=document.getElementById("weapon"),timeE=document.getElementById("time"),msg=document.getElementById("message"),prevWeapon=document.getElementById("prevWeapon"),nextWeapon=document.getElementById("nextWeapon");
+let W=0,H=0,dpr=1,run=false,last=0,timer=0,flash=0,shake=0,msgT=0,showMap=true,level=1,gameOver=false;
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;c.style.width=W+"px";c.style.height=H+"px";x.setTransform(dpr,0,0,dpr,0,0)}addEventListener("resize",resize);resize();
 const map=["1111111111111111111111","1000000000000000000001","1011110011111000111101","1000010000001000100001","1000010111101010101101","1000000100001000100001","1011110101111110101101","1000000100000000100001","1011110111111100111101","1000010000000100000001","1001011110111101111101","1001000000100001000001","1001110111101110111101","1000000100000000100001","1000000000000000000001","1000111111111101111101","1000000000000000000001","1011111110001111111101","1000000000000000000001","1111111111111111111111"];
 const MW=map[0].length,MH=map.length,FOV=Math.PI/3;
@@ -65,16 +65,16 @@ look.addEventListener("pointermove",e=>{if(e.pointerId!==lookId||!run)return;con
 look.addEventListener("pointerup",e=>{if(e.pointerId===lookId)lookId=null});
 look.addEventListener("pointercancel",e=>{if(e.pointerId===lookId)lookId=null});
 
-addEventListener("keydown",e=>{let k=e.key.toLowerCase();if([" ","arrowleft","arrowright","arrowup","arrowdown"].includes(k))e.preventDefault();keys.add(k);if(k==="escape"&&run)pause();if(k==="r"&&run)reload();if(k==="m"&&run){showMap=!showMap;mc.style.display=showMap?"block":"none"}if((k==="1"||k==="2"||k==="3")&&run)switchWeapon(+k);if(!run&&(k==="enter"||k===" "))startGame()});
-addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));start.onclick=startGame;
+addEventListener("keydown",e=>{let k=e.key.toLowerCase();if([" ","arrowleft","arrowright","arrowup","arrowdown"].includes(k))e.preventDefault();keys.add(k);if(k==="escape"&&run)pause();if(k==="r"&&run)reload();if(k==="m"&&run){showMap=!showMap;mc.style.display=showMap?"block":"none"}if((k==="+"||k==="=")&&run)scrollWeapon(1);if(k==="-"&&run)scrollWeapon(-1);if(!run&&(k==="enter"||k===" "))startGame()});
+addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));start.onclick=startGame;prevWeapon.onclick=()=>run&&scrollWeapon(-1);nextWeapon.onclick=()=>run&&scrollWeapon(1);
 function cell(a,b){let X=Math.floor(a),Y=Math.floor(b);return Y<0||Y>=MH||X<0||X>=MW||map[Y][X]==="1"}
 function block(a,b,r=.18){return cell(a-r,b-r)||cell(a+r,b-r)||cell(a-r,b+r)||cell(a+r,b+r)}
 function norm(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a}
 function line(a,b,d,e){let n=Math.ceil(Math.hypot(d-a,e-b)*10);for(let i=1;i<n;i++){let q=i/n;if(cell(a+(d-a)*q,b+(e-b)*q))return false}return true}
 function reset(){
- p.x=1.7;p.y=1.7;p.a=0;p.hp=100;p.armor=25;p.ammo=12;p.reserve=48;p.cool=0;p.reload=0;p.weapon=1;score=0;level=1;timer=0;gameOver=false;shots=[];sparks=[];trails=[];pickups=[];
- const spots=[[4.5,3.5],[13.5,3.5],[19.5,3.5],[7.5,5.5],[15.5,5.5],[4.5,10.5],[11.5,10.5],[17.5,10.5],[7.5,12.5],[15.5,12.5],[4.5,16.5],[18.5,18.5]];
- foes=spots.map((q,i)=>({x:q[0],y:q[1],hp:i%3?2:3,alive:true,flash:0,hit:0,fire:1.5+i*.12,alert:0}));
+ p.x=1.7;p.y=1.7;p.a=0;p.hp=100;p.armor=25;p.ammo=12;p.reserve=48;p.cool=0;p.reload=0;p.weapon=1;level=1;timer=0;gameOver=false;shots=[];sparks=[];trails=[];pickups=[];
+ const safeSpots=[[3.5,1.5],[4.5,3.5],[13.5,3.5],[19.5,3.5],[7.5,5.5],[15.5,5.5],[4.5,10.5],[11.5,10.5],[17.5,10.5],[7.5,12.5],[15.5,12.5],[18.5,18.5]];
+ foes=safeSpots.map((q,i)=>({x:q[0],y:q[1],hp:i%3?2:3,alive:true,flash:0,hit:0,fire:1.5+i*.12,alert:0}));
  pickups=[
   {x:5.5,y:14.5,type:"armor",taken:false},
   {x:12.5,y:4.5,type:"ammo",taken:false},
@@ -83,10 +83,14 @@ function reset(){
   {x:3.5,y:12.5,type:"shotgun",taken:false},
   {x:16.5,y:16.5,type:"armor",taken:false}
  ];
+ // Safety check: move any object that happens to overlap a wall to the nearest open cell.
+ const moveToOpen=(o)=>{if(!cell(o.x,o.y))return;for(let r=1;r<12;r++)for(let yy=-r;yy<=r;yy++)for(let xx=-r;xx<=r;xx++){let nx=Math.floor(o.x)+xx+.5,ny=Math.floor(o.y)+yy+.5;if(!cell(nx,ny)&&!block(nx,ny,.16)){o.x=nx;o.y=ny;return}}};
+ foes.forEach(moveToOpen);pickups.forEach(moveToOpen);
 }
 function startGame(){reset();run=true;menu.style.display="none";hud.style.display="block";touchDown();mc.style.display=showMap?"block":"none";start.textContent="START GAME";sub.textContent="Clear all 12 targets as fast as possible.";last=performance.now();message("SECTOR 01");requestAnimationFrame(loop)}
 function pause(){run=false;menu.style.display="grid";hud.style.display="none";touchUp();start.textContent="RESUME"}
 function message(t){msg.textContent=t;msg.style.opacity=1;msgT=1}
+function scrollWeapon(dir){switchWeapon(((p.weapon-1+dir+3)%3)+1)}
 function switchWeapon(n){p.weapon=n;let cap=n===1?12:n===2?4:2;p.ammo=Math.min(p.ammo,cap);wepE.textContent=n===1?"RIFLE":n===2?"BLASTER":"SHOTGUN";message(wepE.textContent)}
 function reload(){let cap=p.weapon===1?12:p.weapon===2?4:2;if(p.reload||p.ammo>=cap||p.reserve<=0)return;p.reload=p.weapon===1?.8:p.weapon===2?1.05:1.25;message("RELOADING")}
 function shoot(){
@@ -106,9 +110,9 @@ function shoot(){
   const reach=best?bd:Math.min(12,8+Math.random()*5);
   trails.push({a:ang,d:reach,t:.16,max:.16,hit:!!best});
   if(best){
-   best.hp-=p.weapon===1?1:p.weapon===2?2:1;
-   best.flash=.12;score+=p.weapon===3?15:25;
-   if(best.hp<=0){best.alive=false;score+=75;message("TARGET DOWN");for(let i=0;i<8;i++)sparks.push({x:best.x,y:best.y,t:.5,a:Math.random()*6.28})}
+   best.hp-=1;
+   best.flash=.12;
+   if(best.hp<=0){best.alive=false;message("TARGET DOWN");for(let i=0;i<8;i++)sparks.push({x:best.x,y:best.y,t:.5,a:Math.random()*6.28})}
   }
  }
  for(let i=0;i<(p.weapon===3?10:p.weapon===1?2:5);i++)sparks.push({x:p.x+Math.cos(p.a)*.4,y:p.y+Math.sin(p.a)*.4,t:.12,a:p.a+(Math.random()-.5)*.5});
@@ -136,11 +140,11 @@ function enemyAI(dt){
    if(d>1.6){
     let s=dt*(seen?.62:.42),nx=e.x+dx/d*s,ny=e.y+dy/d*s;
     if(!block(nx,e.y,.16))e.x=nx;if(!block(e.x,ny,.16))e.y=ny;
-   }else if(e.hit<=0){damage(8);e.hit=1.05}
+   }else if(e.hit<=0){damage(16);e.hit=1.05}
    if(seen&&d<9&&e.fire<=0){shots.push({x:e.x,y:e.y,dx:dx/d,dy:dy/d,d:0});e.fire=1.5+Math.random()*1.1}
   }
  }
- for(let s of shots){s.x+=s.dx*dt*5;s.y+=s.dy*dt*5;s.d+=dt;if(Math.hypot(s.x-p.x,s.y-p.y)<.3){damage(6);s.d=99}if(cell(s.x,s.y))s.d=99}
+ for(let s of shots){s.x+=s.dx*dt*5;s.y+=s.dy*dt*5;s.d+=dt;if(Math.hypot(s.x-p.x,s.y-p.y)<.3){damage(12);s.d=99}if(cell(s.x,s.y))s.d=99}
  shots=shots.filter(s=>s.d<2.5);
 }
 function update(dt){
@@ -153,10 +157,10 @@ function update(dt){
  for(let s of sparks){s.t-=dt;s.x+=Math.cos(s.a)*dt*.7;s.y+=Math.sin(s.a)*dt*.7}
  sparks=sparks.filter(s=>s.t>0);trails.forEach(t=>t.t-=dt);trails=trails.filter(t=>t.t>0);
  if(p.hp<=0)return end(false);if(foes.every(e=>!e.alive))return end(true);
- hpE.textContent=p.hp;armE.textContent=p.armor;tarE.textContent=(12-foes.filter(e=>e.alive).length)+"/12";ammoE.textContent=(p.reload?"...":p.ammo)+"/"+p.reserve;wepE.textContent=p.weapon===1?"RIFLE":p.weapon===2?"BLASTER":"SHOTGUN";scoreE.textContent=score;
+ hpE.textContent=p.hp;armE.textContent=p.armor;tarE.textContent=(12-foes.filter(e=>e.alive).length)+"/12";ammoE.textContent=(p.reload?"...":p.ammo)+"/"+p.reserve;wepE.textContent=p.weapon===1?"RIFLE":p.weapon===2?"BLASTER":"SHOTGUN";
  timeE.textContent=new Date(timer*1000).toISOString().slice(14,19)+"."+Math.floor((timer%1)*10);let mm=Math.floor(timer/60),ss=Math.floor(timer%60),tt=Math.floor((timer%1)*10);timeE.textContent=String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0")+"."+tt;flash=Math.max(0,flash-dt);shake=Math.max(0,shake-dt*15);if(msgT>0){msgT-=dt;if(msgT<=0)msg.style.opacity=0}
 }
-function end(win){run=false;gameOver=true;menu.style.display="grid";hud.style.display="none";touchUp();start.textContent="RETRY";sub.textContent=win?"SECTOR CLEARED — 12/12 TARGETS — TIME "+timeE.textContent+" — SCORE "+score:"SYSTEM FAILURE — TIME "+timeE.textContent+" — SCORE "+score}
+function end(win){run=false;gameOver=true;menu.style.display="grid";hud.style.display="none";touchUp();start.textContent="RETRY";sub.textContent=win?"SECTOR CLEARED — 12/12 TARGETS — TIME "+timeE.textContent:"SYSTEM FAILURE — TIME "+timeE.textContent}
 function render(){
  let ox=shake?(Math.random()-.5)*shake:0,oy=shake?(Math.random()-.5)*shake:0;x.save();x.translate(ox,oy);
  let h=H*.48;x.fillStyle="#10131a";x.fillRect(-10,-10,W+20,h+10);let g=x.createLinearGradient(0,h,0,H);g.addColorStop(0,"#303744");g.addColorStop(1,"#090b10");x.fillStyle=g;x.fillRect(-10,h,W+20,H-h+10);
@@ -167,7 +171,7 @@ function render(){
  for(let s of shots){let dx=s.x-p.x,dy=s.y-p.y,d=Math.hypot(dx,dy),a=norm(Math.atan2(dy,dx)-p.a);if(Math.abs(a)<FOV*.7&&d>.2){let sx=W/2+Math.tan(a)/Math.tan(FOV/2)*W/2,sz=Math.max(3,H/(d*4));x.fillStyle="#dce7ff";x.fillRect(sx-sz/2,h-sz/2,sz,sz)}}for(let t of trails){let a=norm(t.a-p.a);if(Math.abs(a)<FOV*.72){let d=t.d*(t.t/t.max),ex=W/2+Math.tan(a)/Math.tan(FOV/2)*W/2,ey=h-Math.min(H*.35,H/(Math.max(.25,d)*2.8));x.save();x.strokeStyle=t.hit?"#fff":"#dbe8ff";x.lineWidth=t.hit?4:2;x.shadowColor="#fff";x.shadowBlur=10;x.globalAlpha=Math.max(0,t.t/t.max);x.beginPath();x.moveTo(W/2,h);x.lineTo(ex,ey);x.stroke();x.restore()}}
  // ground pickups
  for(let q of pickups)if(!q.taken){let dx=q.x-p.x,dy=q.y-p.y,d=Math.hypot(dx,dy),a=norm(Math.atan2(dy,dx)-p.a);if(Math.abs(a)<FOV*.72&&d>.2){let sx=W/2+Math.tan(a)/Math.tan(FOV/2)*W/2,sz=Math.max(5,H/(d*5));x.save();x.translate(sx,h+sz*.2);x.fillStyle=q.type==="health"?"#f2f2f2":q.type==="armor"?"#a7b1be":q.type==="shotgun"?"#dce3ea":"#bbc4cf";x.fillRect(-sz,-sz*.5,sz*2,sz);x.strokeStyle="#050608";x.lineWidth=2;x.strokeRect(-sz,-sz*.5,sz*2,sz);x.fillStyle="#20252d";x.font=Math.max(8,sz*.65)+"px system-ui";x.textAlign="center";x.textBaseline="middle";x.fillText(q.type==="health"?"+":q.type==="armor"?"A":q.type==="shotgun"?"S":"M",0,0);x.restore()}} // weapon
- x.save();x.translate(W/2,H);x.fillStyle="#1d222a";x.fillRect(-82,-108,164,108);x.fillStyle="#424a57";x.fillRect(-42,-170,84,120);x.fillStyle="#101318";x.fillRect(-13,-215,26,95);if(p.weapon===2){x.fillStyle="#596372";x.fillRect(-65,-145,130,38)}if(flash>0){x.fillStyle="#fff3ae";x.beginPath();x.moveTo(0,-152);x.lineTo(-20,-112);x.lineTo(0,-122);x.lineTo(20,-112);x.closePath();x.fill()}x.restore();
+ x.save();x.translate(Math.round(W/2),H);if(p.weapon===3){x.fillStyle="#1b2027";x.fillRect(-54,-54,108,54);x.fillStyle="#596372";x.fillRect(-42,-82,84,30);x.fillStyle="#101318";x.fillRect(-25,-108,16,54);x.fillRect(9,-108,16,54)}else{x.fillStyle="#1b2027";x.fillRect(-48,-50,96,50);x.fillStyle="#424a57";x.fillRect(-28,-76,56,30);x.fillStyle="#101318";x.fillRect(-7,-98,14,48);if(p.weapon===2){x.fillStyle="#596372";x.fillRect(-40,-68,80,20)}}if(flash>0){x.fillStyle="#fff3ae";x.beginPath();x.moveTo(0,-108);x.lineTo(-16,-78);x.lineTo(0,-86);x.lineTo(16,-78);x.closePath();x.fill()}x.restore();
  x.restore();drawMap();
 }
 function drawMap(){if(!showMap)return;let s=mc.width=150,d=150/MW;mx.clearRect(0,0,150,150);for(let y=0;y<MH;y++)for(let a=0;a<MW;a++){mx.fillStyle=map[y][a]==="1"?"#56606c":"#11151b";mx.fillRect(a*d,y*d,d+.5,d+.5)}mx.fillStyle="#fff";mx.beginPath();mx.arc(p.x*d,p.y*d,3,0,6.28);mx.fill();mx.strokeStyle="#fff";mx.beginPath();mx.moveTo(p.x*d,p.y*d);mx.lineTo((p.x+Math.cos(p.a)*.7)*d,(p.y+Math.sin(p.a)*.7)*d);mx.stroke();for(let e of foes)if(e.alive){mx.fillStyle="#c5cbd4";mx.beginPath();mx.arc(e.x*d,e.y*d,2.5,0,6.28);mx.fill()}for(let q of pickups)if(!q.taken){mx.fillStyle=q.type==="health"?"#fff":q.type==="armor"?"#9da8b6":q.type==="shotgun"?"#d7dce2":"#b8c0cb";mx.fillRect(q.x*d-2,q.y*d-2,4,4)}}
